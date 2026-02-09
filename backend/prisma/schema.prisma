@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  name      String
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  persons        Person[]
+  mainCategories MainCategory[]
+  subCategories  SubCategory[]
+  expenses       Expense[]
+}
+
+model Person {
+  id        String   @id @default(uuid())
+  name      String
+  groupId   String
+  createdAt DateTime @default(now())
+
+  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  expenses  Expense[]
+
+  @@index([groupId])
+}
+
+model MainCategory {
+  id        String   @id @default(uuid())
+  name      String
+  groupId   String
+  createdAt DateTime @default(now())
+
+  group         Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  subCategories SubCategory[]
+
+  @@index([groupId])
+}
+
+model SubCategory {
+  id             String   @id @default(uuid())
+  name           String
+  mainCategoryId String
+  groupId        String
+  createdAt      DateTime @default(now())
+
+  mainCategory MainCategory @relation(fields: [mainCategoryId], references: [id], onDelete: Cascade)
+  group        Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  expenses     Expense[]
+
+  @@index([mainCategoryId])
+  @@index([groupId])
+}
+
+model Expense {
+  id            String   @id @default(uuid())
+  amount        Float
+  subCategoryId String
+  paidBy        String
+  groupId       String
+  date          String
+  note          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subCategory SubCategory @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  person      Person      @relation(fields: [paidBy], references: [id], onDelete: Cascade)
+  group       Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([date])
+  @@index([paidBy])
+}
+

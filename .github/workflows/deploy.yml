@@ -1,0 +1,14 @@
+# Optional: GitHub Actions for automated deployment
+# This is not required but can help with CI/CD
+
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # Backend deployment would be handled by Render
+  # Frontend deployment would be handled by Vercel
+  # This is just a placeholder for future automation
+

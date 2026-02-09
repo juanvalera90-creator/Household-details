@@ -1,0 +1,19 @@
+# Render Blueprint for easy deployment
+services:
+  - type: web
+    name: household-expenses-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build && npm run prisma:generate
+    startCommand: npm run prisma:migrate:deploy && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+    database:
+      name: household-expenses-db
+      plan: free
+      databaseName: household_expenses
+      user: household_expenses_user
+
