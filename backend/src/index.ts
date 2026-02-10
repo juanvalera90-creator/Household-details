@@ -12,7 +12,9 @@ const app = express();
 
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// Allow frontend origin(s); in production set FRONTEND_URL (e.g. https://hd-cyan.vercel.app)
+const corsOrigin = process.env.FRONTEND_URL || true;
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 // Health check

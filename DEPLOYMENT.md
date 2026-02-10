@@ -80,14 +80,18 @@ git push -u origin main
 
 ### 2.3 Update Prisma Schema for PostgreSQL
 
-Edit `backend/prisma/schema.prisma`:
+**Pre-deploy checklist:** Before deploying, ensure (1) `backend/prisma/schema.prisma` has `provider = "postgresql"`, and (2) your Render **Start Command** is `npm run prisma:migrate:deploy && npm start` (script name has a colon: **prisma:migrate:deploy**).
+
+In your project, open `backend/prisma/schema.prisma` and change the **datasource** so it uses PostgreSQL instead of SQLite. Only the `provider` line changes; the URL stays as `env("DATABASE_URL")` (you will set the real URL in Render, not in this file):
 
 ```prisma
 datasource db {
-  provider = "postgresql"  // Change from "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 ```
+
+**Important:** Do **not** paste your real database URL inside the schema file. The schema only references the environment variable. You will add the actual URL in Step 2.4 as the `DATABASE_URL` environment variable in Render. That keeps your password and host private.
 
 ### 2.4 Deploy Backend Service
 
@@ -98,11 +102,13 @@ datasource db {
    - **Root Directory**: `backend`
    - **Environment**: `Node`
    - **Build Command**: `npm install && npm run build && npm run prisma:generate`
-   - **Start Command**: `npm run prisma:migrate deploy && npm start`
-4. Add Environment Variables:
-   - `DATABASE_URL`: Paste the PostgreSQL URL from step 2.2
-   - `PORT`: `3001` (or leave default)
-   - `NODE_ENV`: `production`
+   - **Start Command**: `npm run prisma:migrate:deploy && npm start`  
+     (Use the script **prisma:migrate:deploy** so it runs `prisma migrate deploy`, not the dev migrate command.)
+4. Add Environment Variables (in Render’s **Environment** section):
+   - **`DATABASE_URL`**: Paste the **Internal Database URL** from your Render PostgreSQL database (Step 2.2). It looks like:  
+     `postgresql://USER:PASSWORD@HOST/DATABASE`
+   - **`PORT`**: `3001` (or leave default)
+   - **`NODE_ENV`**: `production`
 5. Click **"Create Web Service"**
 6. Wait for deployment (5-10 minutes)
 
@@ -241,8 +247,12 @@ If you prefer Railway over Render:
 - Check CORS settings
 - Ensure backend is running (check Render dashboard)
 
+### "URL must start with the protocol file:" or "SQLite database"
+- Your schema still has `provider = "sqlite"` but Render is giving a PostgreSQL URL. In `backend/prisma/schema.prisma` set `provider = "postgresql"`, commit, and push. Then redeploy.
+- Ensure Render’s **Start Command** is `npm run prisma:migrate:deploy && npm start` (with the colon in **prisma:migrate:deploy**), not `prisma:migrate deploy`.
+
 ### Database errors
-- Run migrations: `npm run prisma:migrate deploy`
+- Run migrations: `npm run prisma:migrate:deploy` (or set Start Command to include it)
 - Check database connection string
 - Verify PostgreSQL is running in Render
 

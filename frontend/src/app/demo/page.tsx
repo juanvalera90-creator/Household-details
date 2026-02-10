@@ -1,46 +1,62 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import { API_URL } from '@/lib/api';
 const DEMO_GROUP_ID = 'demo-group-id';
 
 export default function DemoPage() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize demo group if it doesn't exist
     const initDemo = async () => {
       try {
-        // Check if demo group exists
         const response = await fetch(`${API_URL}/groups/${DEMO_GROUP_ID}`);
         if (response.ok) {
           router.push(`/group/${DEMO_GROUP_ID}`);
-        } else {
-          // Create demo group
-          await fetch(`${API_URL}/groups`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              id: DEMO_GROUP_ID,
-              name: 'Demo Household',
-              isDemo: true,
-              person1Name: 'Demo Person A',
-              person2Name: 'Demo Person B',
-            }),
-          });
-          router.push(`/group/${DEMO_GROUP_ID}`);
+          return;
         }
-      } catch (error) {
-        console.error('Error initializing demo:', error);
+        const createRes = await fetch(`${API_URL}/groups`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: DEMO_GROUP_ID,
+            name: 'Demo Household',
+            isDemo: true,
+            person1Name: 'Demo Person A',
+            person2Name: 'Demo Person B',
+          }),
+        });
+        if (!createRes.ok) {
+          const data = await createRes.json().catch(() => ({}));
+          setError(data?.error || `Failed to load demo (${createRes.status})`);
+          return;
+        }
+        router.push(`/group/${DEMO_GROUP_ID}`);
+      } catch (err) {
+        console.error('Error initializing demo:', err);
+        setError('Cannot reach server. Check that the API is running and CORS is allowed.');
       }
     };
 
     initDemo();
   }, [router]);
+
+  if (error) {
+    return (
+      <div className="container" style={{ paddingTop: '2rem', textAlign: 'center' }}>
+        <div className="card" style={{ maxWidth: '28rem', margin: '0 auto' }}>
+          <p style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{error}</p>
+          <Link href="/" className="btn btn-primary">
+            ← Back to home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container" style={{ paddingTop: '2rem', textAlign: 'center' }}>

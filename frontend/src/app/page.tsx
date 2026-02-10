@@ -73,13 +73,15 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create group');
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data?.error || `Failed to create group (${response.status})`);
       }
 
       const group = await response.json();
       router.push(`/group/${group.id}`);
     } catch (err) {
-      setError('Failed to create group. Please try again.');
+      const message = err instanceof Error ? err.message : 'Failed to create group. Please try again.';
+      setError(message);
       console.error(err);
     } finally {
       setLoading(false);
