@@ -12,7 +12,7 @@ export const createGroupSchema = z.object({
 });
 
 export const createExpenseSchema = z.object({
-  amount: z.union([z.number(), z.string()]).pipe(z.coerce.number().positive('Amount must be positive')),
+  amount: z.coerce.number().positive('Amount must be positive'),
   subCategoryId: z.string().min(1, 'Subcategory is required'),
   paidBy: z.string().min(1, 'Paid by is required'),
   groupId: z.string().min(1, 'Group is required'),
@@ -21,7 +21,7 @@ export const createExpenseSchema = z.object({
 });
 
 export const updateExpenseSchema = z.object({
-  amount: z.union([z.number(), z.string()]).pipe(z.coerce.number().positive('Amount must be positive')).optional(),
+  amount: z.coerce.number().positive('Amount must be positive').optional(),
   subCategoryId: z.string().min(1).optional(),
   paidBy: z.string().min(1).optional(),
   date: dateString.optional(),
