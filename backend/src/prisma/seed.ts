@@ -8,10 +8,10 @@ async function main() {
 
   // Create demo group
   const demoGroup = await prisma.group.upsert({
-    where: { id: 'demo-group-id' },
+    where: { id: '00000000-0000-4000-a000-000000000001' },
     update: {},
     create: {
-      id: 'demo-group-id',
+      id: '00000000-0000-4000-a000-000000000001',
       name: 'Demo Household',
       isDemo: true,
       persons: {

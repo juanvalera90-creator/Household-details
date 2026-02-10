@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 import { API_URL } from '@/lib/api';
-const DEMO_GROUP_ID = 'demo-group-id';
+
+/** Fixed UUID for the demo group (backend requires UUID when id is provided). */
+const DEMO_GROUP_ID = '00000000-0000-4000-a000-000000000001';
 
 export default function DemoPage() {
   const router = useRouter();
